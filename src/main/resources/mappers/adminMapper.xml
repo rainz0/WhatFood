@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kubg.mappers.adminMapper">
+    
+	<!-- 카테고리 호출 -->
+	<select id="category" resultType="com.kubg.domain.CategoryVO">
+		select
+			level, cateName, cateCode, cateCodeRef
+		from goods_category
+	    	start with cateCodeRef is null connect by prior cateCode = cateCodeRef
+	</select>
+
+	<!-- 레시피 등록 -->
+	<insert id="register">
+		insert into tbl_goods (gdsNum, gdsName, cateCode, gdsDes)
+	   		values (tbl_goods_seq.nextval, #{gdsName}, #{cateCode}, #{gdsDes})
+	</insert>
+ 
+	<!-- 레시피 목록 -->	
+	<select id="goodslist" resultType="com.kubg.domain.GoodsVO">
+		select
+			gdsNum, gdsName, cateCode, gdsDes, gdsImg, gdsDate
+	    from tbl_goods
+	        order by gdsNum desc
+	</select>
+	
+<!-- 레시피 조회 + 카테고리 조인-->
+<select id="goodsView" resultType="com.kubg.domain.GoodsViewVO">
+ select
+     g.gdsNum, g.gdsName, g.cateCode, c.cateCodeRef, c.cateName, gdsDes, gdsDate
+         from tbl_goods g
+             inner join goods_category c
+                 on g.cateCode = c.cateCode          
+            where g.gdsNum = #{gdsNum}
+</select>
+
+<!-- 레시피 수정 -->
+<update id="goodsModify">
+ update tbl_goods
+     set
+         gdsName = #{gdsName},
+         cateCode = #{cateCode},
+         gdsDes = #{gdsDes}
+     where gdsNum = ${gdsNum}
+</update>
+
+<!-- 레시피 삭제 -->
+<delete id="goodsDelete">
+ delete
+     tbl_goods
+ where gdsNum = #{gdsNum}
+</delete>
+	 
+</mapper>
